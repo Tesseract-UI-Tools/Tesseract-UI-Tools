@@ -1,25 +1,17 @@
 1. [About](#about)
-2. [User Interface Overview](#user-interface-overview)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Mail Notification](#mail-notification)
+2. [Installation](#installation)
+3. [Usage](#usage)
+4. [Mail Notification](#mail-notification)
+5. [Troubleshooting & details](#troubleshooting--details)
 
 ## About
 
-Tesseract UI Tools is an application that allows you to bulk apply the [Tesseract OCR](https://tesseract-ocr.github.io/) engine on multiple files to create PDFs with text layer.
-This application is designed to make it easy to process a large number of files in a batch, allowing a queue of multiple jobs to be processed in the background.
+Tesseract UI Tools is an application that allows you to bulk apply the [Tesseract OCR](https://tesseract-ocr.github.io/) engine on multiple files to create PDFs with a searchable text layer.
+This application is designed to make it easy to process a large number of files in a batch. It allows the queue of multiple jobs and processes them in the background.
 
 A job consists of multiple parameters: input folder, output folder, languages to recognize, preprocessing strategy, DPI, quality and minimum confidence.
 
 Currently, the application can handle the following formats: TIFF, TIF, JPEG, JPG and PDF.
-
-## User Interface Overview
-
-![Main Screen Form](./images/main-screen.png)
-
-![Add Job Form](./images/add-job-screen.png)
-
-![Mail Settings Form](./images/mail-settings-screen.png)
 
 ## Installation
 
@@ -32,21 +24,27 @@ Currently, the application can handle the following formats: TIFF, TIF, JPEG, JP
 
 ## Usage
 
+![Main Screen Form](./images/main-screen.png)
+
 The main screen shows a table with the queue of jobs for this session. It also allows setting an email address to receive notifications by mail. See [Mail Notifications](#mail-notification) to set up it.
 
 Each line of the table represents a job. It has a start time, the input folder and the status (which is either "Created", "Running" or "Finished").
 
 ### Adding a job
 
+![Add Job Form](./images/add-job-screen.png)
+
 After clicking on "Add Job" a new form will pop up. In this form you can set the parameters of the job:
 
- - Input Folder
- - Output Folder
- - Language(s)
+ - Input Folder: this folder should contain one or more files. We don't look at subfolders.
+ - Output Folder: this folder can contain files. It either replaces any PDFs with the same name as the files in the input folder or skips them depending on the Overwrite value.
+ - Language(s): Specify what languages tesseract should use.
  - Preprocessing strategy: See [Preprocessing Strategies](#preprocessing-strategies)
  - DPI: Dots per inch, affects the width and height of the resulting images in the PDF. A value between 70 and 300.
  - Quality: Quality compression of the resulting images in the PDF. A value between 0 and 100.
  - Min Conf: Minimum tesseract confidence required. A value between 0 and 100.
+ - Overwrite
+ - Clear Temporary Files: Deletes any temporary files that are created.
 
 After clicking on "Add Job" on this form it will close and the job is added to the queue. You can now add a different job. The last parameters used are saved during a session only.
 
@@ -63,24 +61,25 @@ The following table represents the steps of each strategy for preprocessing each
 | | Tesseract | Erode | Tesseract (2) |
 | | | Tesseract | Merge Best Tesseract |
 
-We tested each strategy against the same input and found that:
+Each strategy was tested against the same input images. Follows the plots:
+
+ - distribution of time, in milliseconds: <img alt="Plot showing the time distribution that each strategy took" src="./images/plot-time-strat.png" height="240">
+ - distribution of the number of words: <img alt="Plot showing the number of words distribution that each strategy produced" src="./images/plot-words-strat.png" height="240">
+ - distribution of confidence: <img alt="Plot showing the confidence that each strategy had" src="./images/plot-conf-strat.png" height="240">
+
 **Regarding time** Otsu was the fastest strategy, with a 4-second average. Followed by Gaussian with an 8-second average and Fast with a 10-second average.
 This result is mainly caused because we are reducing to half the image before any other step.
 Without reducing the image, the Plain strategy takes an average of 55 seconds. However, the number of words and confidence are not improved.
 
-![Time took for each strategy](./images/plot-time-strat.png)
-
-![Confidence for each strategy](./images/plot-conf-strat.png)
-
-![Number of words for each strategy](./images/plot-words-strat.png)
-
 ## Mail Notification
+
+![Mail Settings Form](./images/mail-settings-screen.png)
 
 Tesseract UI Tools can send an email notifying you that a job has been completed.
 
-The email consists of a report with two tables: the first table with the start time and the parameters for that job, the second table with information on the tesseract confidence and time for each file processed.
+The email consists of a report with two tables: the first table with the start time and the parameters for that job and the second table with information on the tesseract confidence and time for each file processed.
 
-Also, this file is saved under the reports folder with the name `report-{DateTime.Now}.html`.
+Also, this file is saved under the reports folder with the name `report-{DateTime.Now}.html`. See [Troubleshooting & details](#troubleshooting--details) to find this file.
 
 ### Sample Mail
 
@@ -92,7 +91,7 @@ Also, this file is saved under the reports folder with the name `report-{DateTim
 | Language     | eng                   |
 | ...          | ...                   |
 
-| Start Time | Filename | Pages | Time Ellapsed | Words Threshold / Words Total | Confidence Mean Threshold / Confidence Mean Total |
+| Start Time | Filename | Pages | Time Elapsed | Words Threshold / Words Total | Confidence Mean Threshold / Confidence Mean Total |
 |------------|----------|-------|---------------|-------------------------------|---------------------------------------------------|
 | 01/01/1970 00:00:00 | File 1 | 5 | 36s | 957 / 1115 | 77.96429 / 68.227715 |
 | 01/01/1970 00:00:36 | File 2 | ... | |  |  |
@@ -112,9 +111,47 @@ Using a server:
 1. On the main screen, click "Mail Settings"
 2. Fill in the Host, Port and From inputs.
 
-Using a Google Account:
+Using a Google Account*:
 
 1. On the main screen, click "Mail Settings"
 2. Click on "Google"
 3. Login with a google account that will be sending the email
 4. Allow `Tesseract UI Tools` to send a mail with your account.
+
+*Note: steps 1 and 2 must be done every time you open the application, steps 3 and 4 might not be required every time.
+
+## Troubleshooting & details
+
+ - The application saves information on two folders: `%AllUsersProfile%\Tesseract UI Tools\Tesseract UI Tools\1.0.0\` and `%APPDATA%\Tesseract UI Tools\Tesseract UI Tools\1.0.0\`.
+ 
+ - The first folder contains the model information for the Tesseract OCR engine to run in any language.
+
+ - The second folder contains two subfolders and a file `exceptions.log`:
+
+```
+Files\
+Reports\
+exceptions.log
+```
+
+   -  The exceptions.log contains a log of operations when the application runs and saves any errors that might occur.
+
+ - Inside `Files\` for each file that runs it will create a folder with the same filename. Inside that folder for each page and for each job with different parameters it will create the files:
+
+```
+    {filename}\
+        <page>.tiff
+        <page.dpi.quality>.jpeg
+        <page.strategy.lang>.tsv
+```
+
+ - Similarly, inside `Reports\` for each file and job it will create the files:
+
+```
+    <filename.lang.strategy>.html # file report
+    report-{timestamp}.html # job report 
+```
+
+### Uninstalling
+
+To completely uninstall the application delete the folder containing the executable created during the [installation](#installation) and delete the folders above.
