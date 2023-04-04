@@ -124,6 +124,8 @@ Using a Google Account*:
 
 ## Troubleshooting & details
 
+ - To extend the the applications functionalities see [here](extending.md).
+
  - The application saves information on two folders: `%AllUsersProfile%\Tesseract UI Tools\Tesseract UI Tools\1.0.0\` and `%APPDATA%\Tesseract UI Tools\Tesseract UI Tools\1.0.0\`.
  
  - The first folder contains the model information for the Tesseract OCR engine to run in any language.
