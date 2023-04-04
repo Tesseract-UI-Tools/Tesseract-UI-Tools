@@ -12,7 +12,7 @@ namespace Tesseract_UI_Tools.Generators
         public static readonly new string[] FORMATS = new string[] { <type>, <type>, ... };
 ```
 
-In the constructor you can define the property CanRun which defaults to true. To specify if a given file can actually run without needing to throw an error later.
+In the constructor, you can define the property CanRun which defaults to true. To specify if a given file can run without needing to throw an error later.
 
 This class should overwrite the `public override string[] GenerateTIFFs(string FolderPath, bool Overwrite = false)` method and should create tiff files in the FolderPath given from the original image format, returning a list of file paths to the temporary files created.
 
